@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 14e996b3219e88945b7e602b0c62b1d5, type: 3}
+  m_Name: GameConfig
+  m_EditorClassIdentifier: 
+  UnitSpeed: 1
+  UnitHealth: 3
+  UnitDamageOnBase: 1
+  BaseStartHealth: 100
+  PlayersStartGold: 100
+  WinScore: 1000
+  Player1Color: {fileID: 2100000, guid: 4e0791363784ebc41a9fd3896469d58c, type: 2}
+  Player2Color: {fileID: 2100000, guid: 8797f77fc8cdd56448b2397d2265806c, type: 2}
+  UnitPrefab: {fileID: 4199045625463864994, guid: 162f8282508a39740b25c5cb43188166,
+    type: 3}
+  TowerPrefab: {fileID: 1436571017387880365, guid: e95c3f4115111534bb72fe31d8ec4d5d,
+    type: 3}
+  BulletPrefab: {fileID: 3350108543267136593, guid: 947df4556583d01478352f7a841845d9,
+    type: 3}
+  TowerBuildPrefab: {fileID: 6443209526260254263, guid: d2d747d88284cd34190a68c978162e39,
+    type: 3}
