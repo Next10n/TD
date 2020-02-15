@@ -15,14 +15,19 @@ public class GameController : MonoBehaviour
     [Inject]
     private TowerController.Factory _towerFactory;
 
-    private int unitId = 0; // временная хуцйня
+    private GameObject _player1Units;
+    private GameObject _player2Units;
+
+    private int unitId = 0; // TODO добавить менеджер айдишников
 
     void Start()
-    {        
+    {
+        _player1Units = new GameObject("Player1Units");
+        _player2Units = new GameObject("Player2Units");
         InvokeRepeating(nameof(Spawn1v1), 1, 5);
-        _unitsFactory.Create(unitId, _gameConfig.UnitSpeed, _gameConfig.UnitHealth, _gameConfig.UnitDamageOnBase, PlayerSelector.Player1);
+        _unitsFactory.Create(unitId, _gameConfig.UnitSpeed, _gameConfig.UnitHealth, _gameConfig.UnitDamageOnBase, PlayerSelector.Player1).transform.SetParent(_player1Units.transform);
         unitId++;
-        _unitsFactory.Create(unitId, _gameConfig.UnitSpeed, _gameConfig.UnitHealth, _gameConfig.UnitDamageOnBase, PlayerSelector.Player1);
+        _unitsFactory.Create(unitId, _gameConfig.UnitSpeed, _gameConfig.UnitHealth, _gameConfig.UnitDamageOnBase, PlayerSelector.Player2).transform.SetParent(_player2Units.transform);
         unitId++;
         StartCoroutine(croutine());
     }
@@ -51,9 +56,9 @@ public class GameController : MonoBehaviour
 
     private void Spawn1v1()
     {
-        _unitsFactory.Create(unitId, _gameConfig.UnitSpeed, _gameConfig.UnitHealth, _gameConfig.UnitDamageOnBase, PlayerSelector.Player1);
+        _unitsFactory.Create(unitId, _gameConfig.UnitSpeed, _gameConfig.UnitHealth, _gameConfig.UnitDamageOnBase, PlayerSelector.Player1).transform.SetParent(_player1Units.transform);
         unitId++;
-        _unitsFactory.Create(unitId, _gameConfig.UnitSpeed, _gameConfig.UnitHealth, _gameConfig.UnitDamageOnBase, PlayerSelector.Player2);
+        _unitsFactory.Create(unitId, _gameConfig.UnitSpeed, _gameConfig.UnitHealth, _gameConfig.UnitDamageOnBase, PlayerSelector.Player2).transform.SetParent(_player2Units.transform);
         unitId++;
 
     }

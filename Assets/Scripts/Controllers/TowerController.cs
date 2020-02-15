@@ -39,6 +39,7 @@ public class TowerController : MonoBehaviour, ISetColor
     private Renderer render;
     private Dictionary<int, Transform> _targets = new Dictionary<int, Transform>();
 
+    #region unity
     private void Awake()
     {
         _boxCollider = GetComponent<BoxCollider>();
@@ -59,12 +60,81 @@ public class TowerController : MonoBehaviour, ISetColor
             Build();
             return;
         }
-        if(_isTarget)
+        if (_isTarget)
         {
             Shoot();
         }
-         
+
     }
+    #endregion
+
+    #region public metods
+
+    public void UpdateTarget(UnitDestroySignal args)
+    {
+        _targets.Remove(args.unitId);
+        if (args.towerIds.Contains(_towerID))
+        {
+            _target = GetNearestTarget();
+        }
+        if (_target == null)
+        {
+            _isTarget = false;
+        }
+    }
+
+    public void UpdateTarget(int targetId, int towerId)
+    {
+        _targets.Remove(targetId);
+        if (_towerID == towerId)
+        {
+            _target = GetNearestTarget();
+        }
+        if (_target == null)
+        {
+            _isTarget = false;
+        }
+    }
+
+    public class Factory : PlaceholderFactory<float, int, int, float, PlayerSelector, TowerController>
+    {
+
+    }
+
+    public void SetTarget(Transform target, PlayerSelector playerID)
+    {
+        if (playerID != _playerID)
+        {
+            if (_target == null)
+            {
+                _isTarget = true;
+                _target = target;
+            }
+        }
+
+    }
+
+    public int GetTowerID()
+    {
+        return _towerID;
+    }
+
+    public void SetColor()
+    {
+        if (_playerID == PlayerSelector.Player1)
+        {
+            _playerMaterial = Resources.Load("Materials/Player1Color") as Material;
+        }
+
+        if (_playerID == PlayerSelector.Player2)
+        {
+            _playerMaterial = Resources.Load("Materials/Player2Color") as Material;
+        }
+    }
+
+    #endregion
+
+    #region private metods
 
     private void SetColliderRaduis()
     {
@@ -99,42 +169,16 @@ public class TowerController : MonoBehaviour, ISetColor
         {
             render.material = _redMaterial;
         }
-    }   
-
-    public void UpdateTarget(UnitDestroySignal args)
-    {
-        _targets.Remove(args.unitId);
-        if( args.towerIds.Contains(_towerID))
-        {
-            _target = GetNearestTarget();
-        }
-        if(_target == null)
-        {
-            _isTarget = false;
-        }
-    }
-
-    public void UpdateTarget(int targetId, int towerId)
-    {        
-        _targets.Remove(targetId);
-        if (_towerID == towerId)
-        {
-            _target = GetNearestTarget();
-        }
-        if (_target == null)
-        {
-            _isTarget = false;
-        }
     }
 
     private Transform GetNearestTarget()
     {
-        float minDistance = _radius* 100; // хуйня(зато теперь работает)
+        float minDistance = _radius * 100; // костыль
         float distance = 0;
         Transform nearestTarget = null;
         Vector3 position = new Vector3(transform.position.x, transform.position.y, transform.position.z);
 
-        foreach(KeyValuePair<int, Transform> target in _targets)
+        foreach (KeyValuePair<int, Transform> target in _targets)
         {
             distance = Vector3.Distance(position, new Vector3(target.Value.position.x, target.Value.position.y, target.Value.position.z));
             if (distance < minDistance)
@@ -155,7 +199,7 @@ public class TowerController : MonoBehaviour, ISetColor
     {
         if (_canShoot)
         {
-            _bulletFactory.Create(_towerID, 10, 1, _target, _bulletStartPosition);
+            _bulletFactory.Create(_towerID, 10, 1, _target, _bulletStartPosition); //тут надо бы в конфиге задать параметры для пули
             _canShoot = false;
             Invoke(nameof(CanShoot), _hitCouldown);
         }
@@ -166,47 +210,11 @@ public class TowerController : MonoBehaviour, ISetColor
         _canShoot = true;
     }
 
-    public class Factory : PlaceholderFactory<float, int, int, float, PlayerSelector, TowerController>
-    {
-
-    }
-
-    public void SetTarget(Transform target, PlayerSelector playerID)
-    {
-        if(playerID != _playerID)
-        {
-            if(_target == null)
-            {
-                _isTarget = true;
-                _target = target;
-            }  
-        }
-          
-    }
-
-    //public void ResetTarget(Transform losingTarget, PlayerSelector playerID)
-    //{
-    //    if (playerID != _playerID)
-    //    {
-    //        if (_target == losingTarget)
-    //        {
-    //            _isTarget = false;
-    //            _target = null;
-    //        }
-    //    }
-    //}
-
-    //public void ResetTarget()
-    //{
-    //    _isTarget = false;
-    //    _target = null;
-    //}
-           
     private void OnTriggerEnter(Collider other)
     {
         if (_builded == true)
         {
-            if(other is SphereCollider)
+            if (other is SphereCollider)
             {
                 if (other.name.Contains("Unit"))
                 {
@@ -231,10 +239,10 @@ public class TowerController : MonoBehaviour, ISetColor
             }
         }
 
-     
+
     }
 
-    
+
     private void OnTriggerExit(Collider other)
     {
         if (_builded == true)
@@ -249,7 +257,7 @@ public class TowerController : MonoBehaviour, ISetColor
                         _targets.Remove(unitController.Id);
                     }
 
-                        
+
                 }
             }
         }
@@ -267,27 +275,12 @@ public class TowerController : MonoBehaviour, ISetColor
         }
 
     }
-    
+
     private void OnDestroy()
     {
         _signalBus.TryUnsubscribe<UnitDestroySignal>(UpdateTarget);
     }
-   
-    public int GetTowerID()
-    {
-        return _towerID;
-    }
 
-    public void SetColor()
-    {
-        if (_playerID == PlayerSelector.Player1)
-        {
-            _playerMaterial = Resources.Load("Materials/Player1Color") as Material;
-        }
+    #endregion
 
-        if (_playerID == PlayerSelector.Player2)
-        {
-            _playerMaterial = Resources.Load("Materials/Player2Color") as Material;
-        }
-    }
 }

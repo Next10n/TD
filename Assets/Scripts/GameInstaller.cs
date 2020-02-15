@@ -21,9 +21,6 @@ public class GameInstaller : MonoInstaller
             FromComponentInNewPrefab(_gameConfig.BulletPrefab).WithGameObjectName("TowerBullet");
         Container.BindFactory<GameObject, BuildController, BuildController.Factory>().FromComponentInNewPrefab(_gameConfig.TowerBuildPrefab);
 
-
-
-
     }
 
 

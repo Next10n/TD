@@ -9,14 +9,11 @@ public class AIController : MonoBehaviour
 
     private NavMeshAgent agent;
 
-    void Start()
+    private void Start()
     {
         agent = GetComponent<NavMeshAgent>();
         agent.SetDestination(_target.position);
     }
 
-    void Update()
-    {
-       
-    }
+
 }

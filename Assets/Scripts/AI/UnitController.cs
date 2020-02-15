@@ -39,20 +39,6 @@ public class UnitController : MonoBehaviour, ISetColor, ISetDamage
 
     public void SetTarget() => _target = (PlayerSelector.Player1 == _playerID) ? GameObject.Find("Base2").transform : GameObject.Find("Base1").transform;
 
-
-    public void SetTargetLegacy()
-    {
-
-        if(_playerID == PlayerSelector.Player1)
-        {
-            _target = GameObject.Find("Base2").transform;
-        }
-        if(_playerID == PlayerSelector.Player2)
-        {
-            _target = GameObject.Find("Base1").transform;
-        }
-    }
-
     public void SetColor()
     {
         MeshRenderer mr = GetComponent<MeshRenderer>();
@@ -71,11 +57,10 @@ public class UnitController : MonoBehaviour, ISetColor, ISetDamage
         _lastHitTowersId.Add(towerId);
         _health -= damage;
         if (_health <= 0)
-        {
-            _signalBus.Fire(new UnitDestroySignal() { unitId = _id, towerIds = _lastHitTowersId});
+        {            
             //GetComponent<MeshRenderer>().enabled = false;
             Destroy(this.gameObject); //это костыль пока что
-            //далее пулинг
+            // TODO далее пулинг
         }
     }
 
@@ -126,12 +111,9 @@ public class UnitController : MonoBehaviour, ISetColor, ISetDamage
         {
             if (other.transform.gameObject.tag != tag)
             {
-                //_signalBus.Fire<HitBaseSignal>();
                 _signalBus.Fire(new HitBaseSignal() { HittedBase =  _playerID , Damage = _damage});
-                Destroy(this.gameObject);
-                
-                //fire destroy
-                //пулинг объектов
+                Destroy(this.gameObject);                
+                //TODO пулинг объектов
             }
         }
 
@@ -150,6 +132,10 @@ public class UnitController : MonoBehaviour, ISetColor, ISetDamage
         }
     }
 
+    private void OnDestroy()
+    {
+        _signalBus.Fire(new UnitDestroySignal() { unitId = _id, towerIds = _lastHitTowersId });
+    }
 
 
 
