@@ -9,30 +9,26 @@ public class BuildController : MonoBehaviour
     private GameObject _gamePrefab;
 
     [SerializeField]
-    private Transform currentBuilding;
+    private Transform _currentBuilding;
 
-    private RaycastHit hit;
-    void Start()
+    private RaycastHit _hit;
+
+
+    private void Update()
     {
         
-    }
-
-
-    void Update()
-    {
-        
-        if (currentBuilding != null)
+        if (_currentBuilding != null)
         {
 
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            Physics.Raycast(ray, out hit);
-            currentBuilding.position = new Vector3(hit.point.x, hit.point.y + 1, hit.point.z);
+            Physics.Raycast(ray, out _hit);
+            _currentBuilding.position = new Vector3(_hit.point.x, _hit.point.y + 1, _hit.point.z);
         }
     }
 
     public void SetBulding(Transform build)
     {
-        currentBuilding = build;
+        _currentBuilding = build;
     }
 
     public class Factory : PlaceholderFactory<GameObject, BuildController>

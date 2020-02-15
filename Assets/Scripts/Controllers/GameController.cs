@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Zenject;
@@ -14,13 +15,19 @@ public class GameController : MonoBehaviour
     [Inject]
     private TowerController.Factory _towerFactory;
 
+    private int unitId = 0; // временная хуцйня
+
     void Start()
     {        
         InvokeRepeating(nameof(Spawn1v1), 1, 5);
-        _unitsFactory.Create(_gameConfig.UnitSpeed, _gameConfig.UnitHealth, _gameConfig.UnitDamageOnBase, PlayerSelector.Player1);
-        _unitsFactory.Create(_gameConfig.UnitSpeed, _gameConfig.UnitHealth, _gameConfig.UnitDamageOnBase, PlayerSelector.Player1);
+        _unitsFactory.Create(unitId, _gameConfig.UnitSpeed, _gameConfig.UnitHealth, _gameConfig.UnitDamageOnBase, PlayerSelector.Player1);
+        unitId++;
+        _unitsFactory.Create(unitId, _gameConfig.UnitSpeed, _gameConfig.UnitHealth, _gameConfig.UnitDamageOnBase, PlayerSelector.Player1);
+        unitId++;
         StartCoroutine(croutine());
     }
+
+
 
     public void Play()
     {
@@ -44,8 +51,11 @@ public class GameController : MonoBehaviour
 
     private void Spawn1v1()
     {
-        _unitsFactory.Create(_gameConfig.UnitSpeed, _gameConfig.UnitHealth, _gameConfig.UnitDamageOnBase, PlayerSelector.Player1);
-        _unitsFactory.Create(_gameConfig.UnitSpeed, _gameConfig.UnitHealth, _gameConfig.UnitDamageOnBase, PlayerSelector.Player2);
+        _unitsFactory.Create(unitId, _gameConfig.UnitSpeed, _gameConfig.UnitHealth, _gameConfig.UnitDamageOnBase, PlayerSelector.Player1);
+        unitId++;
+        _unitsFactory.Create(unitId, _gameConfig.UnitSpeed, _gameConfig.UnitHealth, _gameConfig.UnitDamageOnBase, PlayerSelector.Player2);
+        unitId++;
+
     }
 
     private void OnApplicationQuit()

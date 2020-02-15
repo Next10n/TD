@@ -13,11 +13,11 @@ public class GameInstaller : MonoInstaller
         Container.DeclareSignal<HitBaseSignal>();
         Container.DeclareSignal<UnitDestroySignal>();
         Container.Bind<AIController>().AsSingle();
-        Container.BindFactory<float, int, int, PlayerSelector, UnitController, UnitController.Factory>().
+        Container.BindFactory<int, float, int, int, PlayerSelector, UnitController, UnitController.Factory>().
             FromComponentInNewPrefab(_gameConfig.UnitPrefab).WithGameObjectName("Unit");
         Container.BindFactory<float, int, int, float, PlayerSelector, TowerController, TowerController.Factory>().
             FromComponentInNewPrefab(_gameConfig.TowerPrefab).WithGameObjectName("Tower");
-        Container.BindFactory<float, int, Transform, Transform, BulletController, BulletController.Factory>().
+        Container.BindFactory<int, float, int, Transform, Transform, BulletController, BulletController.Factory>().
             FromComponentInNewPrefab(_gameConfig.BulletPrefab).WithGameObjectName("TowerBullet");
         Container.BindFactory<GameObject, BuildController, BuildController.Factory>().FromComponentInNewPrefab(_gameConfig.TowerBuildPrefab);
 

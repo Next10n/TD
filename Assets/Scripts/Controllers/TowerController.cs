@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.AI;
 using Zenject;
 
-public class TowerController : MonoBehaviour
+public class TowerController : MonoBehaviour, ISetColor
 {
     [Inject]
     protected float _radius;
@@ -28,7 +28,7 @@ public class TowerController : MonoBehaviour
     private bool _canShoot = true;
     private int _towerLvl;
     private Transform _target;
-    private bool _isTarget = false;
+    private bool _isTarget = false; //чтобы не проверять Transform на null
     private bool _builded = false;
     private bool _canBuild = true;
     private RaycastHit hit;
@@ -37,6 +37,7 @@ public class TowerController : MonoBehaviour
     private Material _playerMaterial;
     private BoxCollider _boxCollider;
     private Renderer render;
+    private Dictionary<int, Transform> _targets = new Dictionary<int, Transform>();
 
     private void Awake()
     {
@@ -44,15 +45,10 @@ public class TowerController : MonoBehaviour
         render = GetComponent<Renderer>();
         _redMaterial = Resources.Load("Materials/Red") as Material;
         _greenMaterial = Resources.Load("Materials/Green") as Material;
-        if (_playerID == PlayerSelector.Player1)
-            _playerMaterial = Resources.Load("Materials/Player1Color") as Material;
 
-        if (_playerID == PlayerSelector.Player2)
-            _playerMaterial = Resources.Load("Materials/Player2Color") as Material;
-
+        _signalBus.Subscribe<UnitDestroySignal>(UpdateTarget);
+        SetColor();
         render.material = _greenMaterial;
-
-        _signalBus.Subscribe<UnitDestroySignal>(ResetTarget);
 
     }
 
@@ -103,12 +99,55 @@ public class TowerController : MonoBehaviour
         {
             render.material = _redMaterial;
         }
-
     }   
+
+    public void UpdateTarget(UnitDestroySignal args)
+    {
+        _targets.Remove(args.unitId);
+        if( args.towerIds.Contains(_towerID))
+        {
+            _target = GetNearestTarget();
+        }
+        if(_target == null)
+        {
+            _isTarget = false;
+        }
+    }
+
+    public void UpdateTarget(int targetId, int towerId)
+    {        
+        _targets.Remove(targetId);
+        if (_towerID == towerId)
+        {
+            _target = GetNearestTarget();
+        }
+        if (_target == null)
+        {
+            _isTarget = false;
+        }
+    }
+
+    private Transform GetNearestTarget()
+    {
+        float minDistance = _radius* 100; // хуйня(зато теперь работает)
+        float distance = 0;
+        Transform nearestTarget = null;
+        Vector3 position = new Vector3(transform.position.x, transform.position.y, transform.position.z);
+
+        foreach(KeyValuePair<int, Transform> target in _targets)
+        {
+            distance = Vector3.Distance(position, new Vector3(target.Value.position.x, target.Value.position.y, target.Value.position.z));
+            if (distance < minDistance)
+            {
+                nearestTarget = target.Value;
+            }
+        }
+
+        return nearestTarget;
+    }
 
     private bool CheckBuild()
     {
-
         return true;
     }
 
@@ -116,7 +155,7 @@ public class TowerController : MonoBehaviour
     {
         if (_canShoot)
         {
-            _bulletFactory.Create(10, 1, _target, _bulletStartPosition);
+            _bulletFactory.Create(_towerID, 10, 1, _target, _bulletStartPosition);
             _canShoot = false;
             Invoke(nameof(CanShoot), _hitCouldown);
         }
@@ -145,66 +184,110 @@ public class TowerController : MonoBehaviour
           
     }
 
-    public void ResetTarget(Transform losingTarget, PlayerSelector playerID)
-    {
-        if (playerID != _playerID)
-        {
-            if (_target == losingTarget)
-            {
-                _isTarget = false;
-                _target = null;
-            }
-        }
-    }
+    //public void ResetTarget(Transform losingTarget, PlayerSelector playerID)
+    //{
+    //    if (playerID != _playerID)
+    //    {
+    //        if (_target == losingTarget)
+    //        {
+    //            _isTarget = false;
+    //            _target = null;
+    //        }
+    //    }
+    //}
 
-    public void ResetTarget()
-    {
-        _isTarget = false;
-        _target = null;
-    }
-
-
-
-
+    //public void ResetTarget()
+    //{
+    //    _isTarget = false;
+    //    _target = null;
+    //}
+           
     private void OnTriggerEnter(Collider other)
     {
-        if (other.name.Contains("Unit"))
+        if (_builded == true)
         {
-            _canBuild = false;
+            if(other is SphereCollider)
+            {
+                if (other.name.Contains("Unit"))
+                {
+                    UnitController unitController = other.GetComponent<UnitController>();
+                    if (unitController.PlayerId != _playerID)
+                    {
+                        _targets.Add(unitController.Id, unitController.transform);
+                    }
+                }
+            }
+        }
+        else
+        {
+            if (other.name.Contains("Unit")) //можно удалить наверное
+            {
+                _canBuild = false;
+            }
+
+            if (other is BoxCollider)
+            {
+                _canBuild = false;
+            }
         }
 
-        if (other is BoxCollider)
-        {
-            _canBuild = false;
-        }
+     
     }
 
-
+    
     private void OnTriggerExit(Collider other)
     {
-        if (other.name.Contains("Unit"))
+        if (_builded == true)
         {
-            _canBuild = true;
+            if (other is SphereCollider)
+            {
+                if (other.name.Contains("Unit"))
+                {
+                    UnitController unitController = other.GetComponent<UnitController>();
+                    if (unitController.PlayerId != _playerID)
+                    {
+                        _targets.Remove(unitController.Id);
+                    }
+
+                        
+                }
+            }
+        }
+        else
+        {
+            if (other.name.Contains("Unit"))
+            {
+                _canBuild = true;
+            }
+
+            if (other is BoxCollider)
+            {
+                _canBuild = true;
+            }
         }
 
-        if (other is BoxCollider)
-        {
-            _canBuild = true;
-        }
     }
-
-
-
+    
     private void OnDestroy()
     {
-        _signalBus.TryUnsubscribe<UnitDestroySignal>(ResetTarget);
+        _signalBus.TryUnsubscribe<UnitDestroySignal>(UpdateTarget);
     }
    
-
-
     public int GetTowerID()
     {
         return _towerID;
     }
 
+    public void SetColor()
+    {
+        if (_playerID == PlayerSelector.Player1)
+        {
+            _playerMaterial = Resources.Load("Materials/Player1Color") as Material;
+        }
+
+        if (_playerID == PlayerSelector.Player2)
+        {
+            _playerMaterial = Resources.Load("Materials/Player2Color") as Material;
+        }
+    }
 }

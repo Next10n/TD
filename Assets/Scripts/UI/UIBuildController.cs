@@ -16,6 +16,6 @@ public class UIBuildController : MonoBehaviour
 
     public void OnCreateTowerBtnClick()
     {
-        _towerControllerFactory.Create(3, 1, 1, 1, PlayerSelector.Player1);
+        _towerControllerFactory.Create(3,1, 1, 1, PlayerSelector.Player1);
     }
 }

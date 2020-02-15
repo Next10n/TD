@@ -64,6 +64,7 @@
   <ItemGroup>
     <Compile Include="Assets\Scripts\AI\AIController.cs" />
     <Compile Include="Assets\Scripts\AI\UnitController.cs" />
+    <Compile Include="Assets\Scripts\Controllers\Base.cs" />
     <Compile Include="Assets\Scripts\Controllers\BuildController.cs" />
     <Compile Include="Assets\Scripts\Controllers\BulletController.cs" />
     <Compile Include="Assets\Scripts\Controllers\CameraController.cs" />
@@ -74,6 +75,7 @@
     <Compile Include="Assets\Scripts\GameConfig.cs" />
     <Compile Include="Assets\Scripts\GameInstaller.cs" />
     <Compile Include="Assets\Scripts\Interfaces\ISetColor.cs" />
+    <Compile Include="Assets\Scripts\Interfaces\ISetDamage.cs" />
     <Compile Include="Assets\Scripts\Signal\HitBaseSignal.cs" />
     <Compile Include="Assets\Scripts\Signal\UnitDestroySignal.cs" />
     <Compile Include="Assets\Scripts\SoInstaller.cs" />

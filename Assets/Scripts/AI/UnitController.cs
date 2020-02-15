@@ -4,11 +4,13 @@ using UnityEngine;
 using UnityEngine.AI;
 using Zenject;
 
-public class UnitController : MonoBehaviour, ISetColor
+public class UnitController : MonoBehaviour, ISetColor, ISetDamage
 {
     
     [Inject]
     private GameConfig _gameConfig;
+    [Inject]
+    protected int _id;
     [Inject]
     protected float _speed;
     [Inject]
@@ -18,12 +20,16 @@ public class UnitController : MonoBehaviour, ISetColor
     [Inject]
     [SerializeField]
     protected PlayerSelector _playerID;
-
     [Inject]
     private SignalBus _signalBus;
 
+    public int Id => _id;
+
+    private List<int> _lastHitTowersId = new List<int>(); //список таверов, которые хитали
     private Transform _target;
     private NavMeshAgent agent;
+
+    public PlayerSelector PlayerId => _playerID;
 
     private void Awake()
     {
@@ -31,8 +37,12 @@ public class UnitController : MonoBehaviour, ISetColor
     }
 
 
-    public void SetTarget()
+    public void SetTarget() => _target = (PlayerSelector.Player1 == _playerID) ? GameObject.Find("Base2").transform : GameObject.Find("Base1").transform;
+
+
+    public void SetTargetLegacy()
     {
+
         if(_playerID == PlayerSelector.Player1)
         {
             _target = GameObject.Find("Base2").transform;
@@ -56,6 +66,25 @@ public class UnitController : MonoBehaviour, ISetColor
         }
     }
 
+    public void SetDamage(int damage, int towerId)
+    {
+        _lastHitTowersId.Add(towerId);
+        _health -= damage;
+        if (_health <= 0)
+        {
+            _signalBus.Fire(new UnitDestroySignal() { unitId = _id, towerIds = _lastHitTowersId});
+            //GetComponent<MeshRenderer>().enabled = false;
+            Destroy(this.gameObject); //это костыль пока что
+            //далее пулинг
+        }
+    }
+
+
+    public class Factory : PlaceholderFactory<int, float, int, int, PlayerSelector, UnitController>
+    {
+
+    }
+
     private void OnCreate()
     {
         TagUnit();
@@ -63,7 +92,7 @@ public class UnitController : MonoBehaviour, ISetColor
         SetStartPosition();
         SetTarget();
         agent = GetComponent<NavMeshAgent>();
-        agent.SetDestination(_target.position);
+        agent.SetDestination(_target.position);        
     }
 
     private void SetStartPosition()
@@ -116,28 +145,13 @@ public class UnitController : MonoBehaviour, ISetColor
     {
         if (other.gameObject.name.Contains("Tower"))
         {
-            other.gameObject.GetComponent<TowerController>().ResetTarget(this.transform, this._playerID);
-        }
-    }
-
-    public void TakeDamage(int damage)
-    {
-        _health -= damage;
-        if(_health <= 0)
-        {
-            _signalBus.Fire<UnitDestroySignal>();
-            //GetComponent<MeshRenderer>().enabled = false;
-            Destroy(this.gameObject); //это костыль пока что
-
-            //далее пулинг
-
+            TowerController towerController = other.gameObject.GetComponent<TowerController>();
+            towerController.UpdateTarget(Id, towerController.GetTowerID());
         }
     }
 
 
-    public class Factory : PlaceholderFactory<float, int, int, PlayerSelector, UnitController>
-    {
 
-    }
+
 }
 
