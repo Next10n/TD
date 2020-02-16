@@ -63,5 +63,7 @@ sysinfo.txt
 crashlytics-build.properties
 Library/assetDatabase3
 Library/metadata/6b/6b78ca75f7db63247b162596d16282b1
+/[Tt]emp/ 
+/[Ll]ibrary/
 *.info
 *.asset

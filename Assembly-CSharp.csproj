@@ -76,6 +76,7 @@
     <Compile Include="Assets\Scripts\GameInstaller.cs" />
     <Compile Include="Assets\Scripts\Interfaces\ISetColor.cs" />
     <Compile Include="Assets\Scripts\Interfaces\ISetDamage.cs" />
+    <Compile Include="Assets\Scripts\Map\Cell.cs" />
     <Compile Include="Assets\Scripts\Map\CreateMap.cs" />
     <Compile Include="Assets\Scripts\Signal\HitBaseSignal.cs" />
     <Compile Include="Assets\Scripts\Signal\UnitDestroySignal.cs" />
